@@ -14,7 +14,8 @@ Este proyecto demuestra un ataque de **DNS Spoofing (Envenenamiento DNS)** utili
 |-------------|--------------|---------|
 | **Ubuntu (Atacante)** | `10.14.89.5` | Estación de Ataque (MITM / DNS Faker) |
 | **Kali (Víctima)** | `10.14.89.4` | Objetivo / Víctima |
-| **Switch** | `10.14.89.1` | Nodo de Red |
+| **Router** | `10.14.89.1` | Gateway de la red |
+| **Switch** | N/A | Nodo de Red (Capa 2) |
 
 - **Segmento de Red:** 10.14.89.0/26 (Rango útil: .1 a .62)
 - **Interfaz del atacante:** `ens3`
